@@ -31,15 +31,19 @@ pub fn dump_irradiance_volumes(blend: &blend::Blend, folder_path: &std::path::Pa
 
     for inst in blend.get_all_root_blocks() {
         if inst.type_name == "Scene" {
+            let scene_name = inst.get("id").get_string("name");
             let eevee = inst.get("eevee");
 
             let gi_diffuse_bounces = eevee.get_i32("gi_diffuse_bounces");
             let gi_cubemap_resolution = eevee.get_i32("gi_cubemap_resolution");
             let gi_visibility_resolution = eevee.get_i32("gi_visibility_resolution");
 
+            let output_path = folder_path.join(&scene_name);
+            std::fs::create_dir_all(&output_path).expect("Failed to create output directory for irradiance volumes");
+
             println!(
-                "gi_diffuse_bounces: {}, gi_cubemap_resolution: {}, gi_visibility_resolution: {}",
-                gi_diffuse_bounces, gi_cubemap_resolution, gi_visibility_resolution
+                "{}: gi_diffuse_bounces: {}, gi_cubemap_resolution: {}, gi_visibility_resolution: {}",
+                &scene_name, gi_diffuse_bounces, gi_cubemap_resolution, gi_visibility_resolution
             );
 
             let light_cache = eevee.get("light_cache_data");
@@ -98,7 +102,7 @@ pub fn dump_irradiance_volumes(blend: &blend::Blend, folder_path: &std::path::Pa
                         );
                     }
 
-                    dds.write_to_file(&folder_path.join("cube_tx.dds"))
+                    dds.write_to_file(&output_path.join("cube_tx.dds"))
                         .expect("Failed to write cube_tx.dds");
                 }
 
@@ -125,7 +129,7 @@ pub fn dump_irradiance_volumes(blend: &blend::Blend, folder_path: &std::path::Pa
                     let data = grid_tx.get_i8_vec("data");
                     dds.as_slice_mut().copy_from_slice(bytemuck::cast_slice(&data));
 
-                    dds.write_to_file(&folder_path.join("grid_tx.dds"))
+                    dds.write_to_file(&output_path.join("grid_tx.dds"))
                         .expect("Failed to write grid_tx.dds");
                 }
             }
