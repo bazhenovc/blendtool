@@ -1,0 +1,10 @@
+[package]
+name = "blendtool"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+blend = "*"
+structopt = "*"
+bytemuck = "*"
+scratch-dds = { git = "https://github.com/bazhenovc/scratch-dds" }
